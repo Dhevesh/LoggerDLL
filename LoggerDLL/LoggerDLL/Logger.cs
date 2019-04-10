@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace LoggerDLL
 {
-    internal class Logger
+    public class Logger
     {
         private readonly string filePath = @"c:\TestLogs\";
         internal void CheckDirectory()
@@ -15,13 +14,13 @@ namespace LoggerDLL
             }
         }
 
-        internal void ErrorLog(string e) //Takes in the Exception and logs to file
+        public void ErrorLog(string e) //Takes in the Exception and logs to file
         {
             CheckDirectory();
-            string date = $"{DateTime.Now:(yyyyMMdd)}";
+            string date = $"{DateTime.Now:yyyyMMdd}";
             string time = $"{DateTime.Now.ToShortTimeString()} [ERROR]";
-            string file = $"Log {date}.txt";
-            if (!Directory.EnumerateFileSystemEntries(filePath).Any())
+            string file = $"{filePath}{date} Log.txt";
+            if (File.Exists(file))
             {
                 using (var fileWriter = new StreamWriter(file, true))
                 {
@@ -30,22 +29,11 @@ namespace LoggerDLL
             }
             else
             {
-                if (File.Exists(file))
+                using (var fileWriter = new StreamWriter(file, true))
                 {
-                    using (var fileWriter = new StreamWriter(file, true))
-                    {
-                        fileWriter.WriteLine($"{time} {e}");
-                    }
-                }
-                else
-                {
-                    using (var fileWriter = new StreamWriter(file, true))
-                    {
-                        fileWriter.WriteLine($"{time} {e}");
-                    }
+                    fileWriter.WriteLine($"{time} {e}");
                 }
             }
         }
-        
     }
 }
