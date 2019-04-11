@@ -9,16 +9,19 @@ namespace LoggerDLL
         private readonly static string date = $"{DateTime.Now:yyyyMMdd}";
         private readonly string time = $"{DateTime.Now.ToShortTimeString()}";
         private static string file = $"{filePath}{date} Log.txt"; //This is used as a default if the user does not set their own name in their application.
+        private int setFileSize = 10; //default value is 10MB.
 
         /// <summary>
         /// Used to configure the file path and name supplied by the user set in their application.
         /// </summary>
-        /// <param name="pathName">string value. Sets the path and name of the Directory</param>
-        /// <param name="fileName">string value. Sets the name of the log file</param>
-        public void SetupLogFiles(string pathName, string fileName)
+        /// <param name="pathName">string value. sets the path and name of the Directory.</param>
+        /// <param name="_fileName">string value. sets the name of the log file.</param>
+        /// <param name="_setFileSize">integer value. sets the max size of the file.</param>
+        public void SetupLogFiles(string _pathName, string _fileName, int _setFileSize)
         {
-            filePath = pathName;
-            file = $"{filePath}{date} {fileName}.txt";
+            filePath = _pathName;
+            file = $"{filePath}{date} {_fileName}.txt";
+            setFileSize = _setFileSize;
         }
 
         internal void CheckDirectory()
@@ -37,9 +40,10 @@ namespace LoggerDLL
         internal void WriteToFile(string outPutText, string type)
         {
             CheckDirectory();
-
+            
             if (File.Exists(file)) // TODO set the file size. Roll over to a new file if the limit is reached.
             {
+                FormatFileName(setFileSize);
                 using (var fileWriter = new StreamWriter(file, true))
                 {
                     fileWriter.WriteLine($"{time} {type} {outPutText}");
@@ -53,6 +57,28 @@ namespace LoggerDLL
                 }
             }
 
+        }
+
+        /// <summary>
+        /// This method calculates the size of the log file. used to determine the size of a file before rolling over to a new file.
+        /// </summary>
+        /// <param name="file">string value. takes in as input the name of the file (fully qualified with the file location).</param>
+        /// <returns>size of the log file in MegaBytes.</returns>
+        internal double CheckFileSize(string file)
+        {
+            var fileSizeInBytes = new FileInfo(file).Length;
+            var mb = 1048576.0;
+            var fileSizeInMegaBytes = Math.Round((fileSizeInBytes / mb), 2);
+            return fileSizeInMegaBytes;
+        }
+
+
+        internal void FormatFileName(int size) //TODO increment the file name with a variable.
+        {
+            if (CheckFileSize(file) >= size)
+            {
+                file = file.Replace(".txt", "_1.txt");
+            }
         }
 
 
