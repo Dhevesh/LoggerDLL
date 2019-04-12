@@ -43,7 +43,7 @@ namespace LoggerDLL
             
             if (File.Exists(file)) // TODO set the file size. Roll over to a new file if the limit is reached.
             {
-                FormatFileName(setFileSize);
+                RollOverFile(setFileSize);
                 using (var fileWriter = new StreamWriter(file, true))
                 {
                     fileWriter.WriteLine($"{time} {type} {outPutText}");
@@ -67,17 +67,42 @@ namespace LoggerDLL
         internal double CheckFileSize(string file)
         {
             var fileSizeInBytes = new FileInfo(file).Length;
-            var mb = 1048576.0;
+            var mb = 1048576.0; //1MB in bytes
             var fileSizeInMegaBytes = Math.Round((fileSizeInBytes / mb), 2);
             return fileSizeInMegaBytes;
         }
 
-
-        internal void FormatFileName(int size) //TODO increment the file name with a variable.
+        /// <summary>
+        /// This method creates a new log file if the file limit set is reached
+        /// </summary>
+        /// <param name="size">integer value. the maximum file size is passed into the method.</param>
+        internal void RollOverFile(int size) //TODO increment the file name with a variable.
         {
-            if (CheckFileSize(file) >= size)
+            string[] getFiles = Directory.GetFiles(filePath);
+            int numFiles = -1;
+            foreach (var file in getFiles) 
             {
-                file = file.Replace(".txt", "_1.txt");
+                if (file.Contains(date)) //checks if a file for the current date exists.
+                {
+                    numFiles++;
+                }
+            }
+            if (numFiles > 0) //if a numbered file exists
+            {
+                file = file.Replace($".txt", $"_{numFiles}.txt"); //get that numbered file.
+            }
+            if (CheckFileSize(file) >= size) //checks the size of the file before rolling over to a new file.
+            {
+                // should be a better way of doing this. NEEDS REFACTORING
+                if (file.Contains($"_{numFiles}"))
+                {
+                    file = file.Replace($"_{numFiles}.txt", $"_{numFiles+1}.txt");
+                }
+                else
+                {
+                    file = file.Replace(".txt", $"_{numFiles+1}.txt");
+                }
+                
             }
         }
 
