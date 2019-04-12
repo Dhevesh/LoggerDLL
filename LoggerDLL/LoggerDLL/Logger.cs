@@ -8,7 +8,7 @@ namespace LoggerDLL
         private static string filePath = @"c:\LoggerDLL\"; //This is used as a default if the user does not set their own path in their application.
         private readonly static string date = $"{DateTime.Now:yyyyMMdd}";
         private readonly string time = $"{DateTime.Now.ToShortTimeString()}";
-        private static string file = $"{filePath}{date} Log.txt"; //This is used as a default if the user does not set their own name in their application.
+        private static string file = $"{filePath}{date} Log.log"; //This is used as a default if the user does not set their own name in their application.
         private int setFileSize = 10; //default value is 10MB.
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace LoggerDLL
         public void SetupLogFiles(string _pathName, string _fileName, int _setFileSize)
         {
             filePath = _pathName;
-            file = $"{filePath}{date} {_fileName}.txt";
+            file = $"{filePath}{date} {_fileName}.log";
             setFileSize = _setFileSize;
         }
 
@@ -89,18 +89,18 @@ namespace LoggerDLL
             }
             if (numFiles > 0) //if a numbered file exists
             {
-                file = file.Replace($".txt", $"_{numFiles}.txt"); //get that numbered file.
+                file = file.Replace($".log", $"_{numFiles}.log"); //get that numbered file.
             }
             if (CheckFileSize(file) >= size) //checks the size of the file before rolling over to a new file.
             {
                 // should be a better way of doing this. NEEDS REFACTORING
                 if (file.Contains($"_{numFiles}"))
                 {
-                    file = file.Replace($"_{numFiles}.txt", $"_{numFiles+1}.txt");
+                    file = file.Replace($"_{numFiles}.log", $"_{numFiles+1}.log");
                 }
                 else
                 {
-                    file = file.Replace(".txt", $"_{numFiles+1}.txt");
+                    file = file.Replace(".log", $"_{numFiles+1}.log");
                 }
                 
             }
